@@ -9,6 +9,7 @@ import com.mirachi.dto.RegisterRequestDto;
 import com.mirachi.entity.User;
 import com.mirachi.enums.Role;
 import com.mirachi.repository.UserRepository;
+import com.mirachi.security.JwtUtil;
 import com.mirachi.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 	private final BCryptPasswordEncoder passwordEncoder;
+	private final JwtUtil jwtUtil;
 
 	@Override
 	public String registerUser(RegisterRequestDto request) {
@@ -36,8 +38,13 @@ public class UserServiceImpl implements UserService {
 		if (!isPasswordValid) {
 			throw new RuntimeException("Invalid Credentials");
 		}
+		String token =
+		        jwtUtil.generateToken(
+		                user.getEmail());
 
-		return new LoginResponseDto("Login Successful");
+		return new LoginResponseDto(
+		        "Login Successful",
+		        token);
 	}
 
 }

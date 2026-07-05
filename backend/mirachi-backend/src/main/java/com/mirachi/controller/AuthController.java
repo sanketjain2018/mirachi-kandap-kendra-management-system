@@ -37,5 +37,10 @@ public class AuthController {
 	    return jwtUtil.generateToken(
 	            "sanket@gmail.com");
 	}
+	
+	@GetMapping("/hello")
+	public String hello() {
+	    return "Authenticated User";
+	}
 }
 	

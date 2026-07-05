@@ -1,11 +1,13 @@
 package com.mirachi.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mirachi.dto.ApiResponse;
 import com.mirachi.dto.LoginRequestDto;
 import com.mirachi.dto.LoginResponseDto;
 import com.mirachi.dto.RegisterRequestDto;
@@ -22,13 +24,20 @@ public class AuthController {
 	private final JwtUtil jwtUtil;
 
 	@PostMapping("/register")
-	public String register(@RequestBody RegisterRequestDto request) {
-		return userService.registerUser(request);
+	public ApiResponse<Object> registerUser(
+	        RegisterRequestDto request) {
+		return new ApiResponse<>(
+		        true,
+		        "User Registered Successfully",
+		        null);
 	}
 
 	@PostMapping("/login")
-	public LoginResponseDto login(@RequestBody LoginRequestDto request) {
-		return userService.loginUser(request);
+	public ResponseEntity<ApiResponse<LoginResponseDto>> login(
+	        @RequestBody LoginRequestDto request) {
+
+	    return ResponseEntity.ok(
+	            userService.loginUser(request));
 	}
 	
 	@GetMapping("/token")

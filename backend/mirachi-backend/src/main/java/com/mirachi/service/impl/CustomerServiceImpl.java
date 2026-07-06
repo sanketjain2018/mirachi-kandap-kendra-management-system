@@ -2,7 +2,15 @@ package com.mirachi.service.impl;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
 
 import com.mirachi.dto.ApiResponse;
 import com.mirachi.dto.CustomerRequestDto;
@@ -157,6 +165,59 @@ public class CustomerServiceImpl implements CustomerService {
 	            true,
 	            "Customer Deleted Successfully",
 	            null);
+	}
+
+	@Override
+	public ApiResponse<Page<CustomerResponseDto>>
+	getCustomers(int page, int size) {
+
+	    Pageable pageable =
+	            PageRequest.of(page, size);
+
+	    Page<CustomerResponseDto> customers =
+	            customerRepository.findAll(pageable)
+	                    .map(customer ->
+	                            CustomerResponseDto.builder()
+	                                    .id(customer.getId())
+	                                    .customerName(
+	                                            customer.getCustomerName())
+	                                    .mobileNumber(
+	                                            customer.getMobileNumber())
+	                                    .address(
+	                                            customer.getAddress())
+	                                    .build());
+
+	    return new ApiResponse<>(
+	            true,
+	            "Customers Retrieved Successfully",
+	            customers);
+	}
+
+	@Override
+	public ApiResponse<List<CustomerResponseDto>>
+	searchCustomers(String customerName) {
+
+	    List<CustomerResponseDto> customers =
+	            customerRepository
+	                    .findByCustomerNameContainingIgnoreCase(
+	                            customerName)
+	                    .stream()
+	                    .map(customer ->
+	                            CustomerResponseDto.builder()
+	                                    .id(customer.getId())
+	                                    .customerName(
+	                                            customer.getCustomerName())
+	                                    .mobileNumber(
+	                                            customer.getMobileNumber())
+	                                    .address(
+	                                            customer.getAddress())
+	                                    .build())
+	                    .toList();
+
+	    return new ApiResponse<>(
+	            true,
+	            "Customers Retrieved Successfully",
+	            customers);
 	}
 	 
 

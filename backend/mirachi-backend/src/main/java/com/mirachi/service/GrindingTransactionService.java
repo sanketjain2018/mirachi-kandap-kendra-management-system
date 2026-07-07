@@ -1,5 +1,6 @@
 package com.mirachi.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.mirachi.dto.ApiResponse;
@@ -25,4 +26,13 @@ public interface GrindingTransactionService {
 
     ApiResponse<String>
     cancelTransaction(Long id);
+    
+    ApiResponse<List<GrindingTransactionResponseDto>>
+    getTransactionsByCustomer(Long customerId);
+
+    ApiResponse<List<GrindingTransactionResponseDto>>
+    getTransactionsByRate(Long rateMasterId);
+
+    ApiResponse<List<GrindingTransactionResponseDto>>
+    getTransactionsByDate(LocalDate date);
 }

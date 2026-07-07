@@ -1,6 +1,7 @@
 package com.mirachi.service.impl;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -220,4 +221,66 @@ public class GrindingTransactionServiceImpl
                         transaction.getRemarks())
                 .build();
     }
+    
+    
+	/* search customer - searching functionality */
+    
+    @Override
+    public ApiResponse<List<GrindingTransactionResponseDto>>
+    getTransactionsByCustomer(Long customerId) {
+
+        List<GrindingTransactionResponseDto> transactions =
+                transactionRepository
+                        .findByCustomerId(customerId)
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList();
+
+        return new ApiResponse<>(
+                true,
+                "Transactions fetched successfully",
+                transactions);
+    }
+    
+    
+	/* rate search - searching functionality */
+    
+    @Override
+    public ApiResponse<List<GrindingTransactionResponseDto>>
+    getTransactionsByRate(Long rateMasterId) {
+
+        List<GrindingTransactionResponseDto> transactions =
+                transactionRepository
+                        .findByRateMasterId(rateMasterId)
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList();
+
+        return new ApiResponse<>(
+                true,
+                "Transactions fetched successfully",
+                transactions);
+    }
+    
+    
+	/* date search - searching functionality */
+    
+    @Override
+    public ApiResponse<List<GrindingTransactionResponseDto>>
+    getTransactionsByDate(LocalDate date) {
+
+        List<GrindingTransactionResponseDto> transactions =
+                transactionRepository
+                        .findByTransactionDate(date)
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList();
+
+        return new ApiResponse<>(
+                true,
+                "Transactions fetched successfully",
+                transactions);
+    }
+    
+    
 }

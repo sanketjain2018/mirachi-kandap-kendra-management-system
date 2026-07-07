@@ -1,0 +1,223 @@
+package com.mirachi.service.impl;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.mirachi.dto.ApiResponse;
+import com.mirachi.dto.GrindingTransactionRequestDto;
+import com.mirachi.dto.GrindingTransactionResponseDto;
+import com.mirachi.entity.Customer;
+import com.mirachi.entity.GrindingTransaction;
+import com.mirachi.entity.RateMaster;
+import com.mirachi.enums.TransactionStatus;
+import com.mirachi.exception.CustomerNotFoundException;
+import com.mirachi.exception.RateMasterNotFoundException;
+import com.mirachi.exception.TransactionNotFoundException;
+import com.mirachi.repository.CustomerRepository;
+import com.mirachi.repository.GrindingTransactionRepository;
+import com.mirachi.repository.RateMasterRepository;
+import com.mirachi.service.GrindingTransactionService;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class GrindingTransactionServiceImpl
+        implements GrindingTransactionService {
+
+    private final GrindingTransactionRepository
+            transactionRepository;
+
+    private final CustomerRepository
+            customerRepository;
+
+    private final RateMasterRepository
+            rateMasterRepository;
+
+    @Override
+    public ApiResponse<GrindingTransactionResponseDto>
+    createTransaction(
+            GrindingTransactionRequestDto request) {
+
+        Customer customer =
+                customerRepository.findById(
+                        request.getCustomerId())
+                        .orElseThrow(() ->
+                                new CustomerNotFoundException(
+                                        "Customer not found"));
+
+        RateMaster rateMaster =
+                rateMasterRepository.findById(
+                        request.getRateMasterId())
+                        .orElseThrow(() ->
+                                new RateMasterNotFoundException(
+                                        "Rate not found"));
+
+        BigDecimal ratePerKg =
+                rateMaster.getRatePerKg();
+
+        BigDecimal totalAmount =
+                ratePerKg.multiply(
+                        BigDecimal.valueOf(
+                                request.getWeightInKg()));
+
+        GrindingTransaction transaction =
+                GrindingTransaction.builder()
+                        .customer(customer)
+                        .rateMaster(rateMaster)
+                        .weightInKg(
+                                request.getWeightInKg())
+                        .ratePerKg(ratePerKg)
+                        .totalAmount(totalAmount)
+                        .remarks(
+                                request.getRemarks())
+                        .build();
+
+        GrindingTransaction saved =
+                transactionRepository.save(
+                        transaction);
+
+        return new ApiResponse<>(
+                true,
+                "Transaction created successfully",
+                mapToResponse(saved));
+    }
+
+    @Override
+    public ApiResponse<List<GrindingTransactionResponseDto>>
+    getAllTransactions() {
+
+        List<GrindingTransactionResponseDto>
+                transactions =
+                transactionRepository.findAll()
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList();
+
+        return new ApiResponse<>(
+                true,
+                "Transactions fetched successfully",
+                transactions);
+    }
+
+    @Override
+    public ApiResponse<GrindingTransactionResponseDto>
+    getTransactionById(Long id) {
+
+        GrindingTransaction transaction =
+                transactionRepository.findById(id)
+                        .orElseThrow(() ->
+                                new TransactionNotFoundException(
+                                        "Transaction not found"));
+
+        return new ApiResponse<>(
+                true,
+                "Transaction fetched successfully",
+                mapToResponse(transaction));
+    }
+
+    @Override
+    public ApiResponse<GrindingTransactionResponseDto>
+    updateTransaction(
+            Long id,
+            GrindingTransactionRequestDto request) {
+
+        GrindingTransaction transaction =
+                transactionRepository.findById(id)
+                        .orElseThrow(() ->
+                                new TransactionNotFoundException(
+                                        "Transaction not found"));
+
+        Customer customer =
+                customerRepository.findById(
+                        request.getCustomerId())
+                        .orElseThrow(() ->
+                                new CustomerNotFoundException(
+                                        "Customer not found"));
+
+        RateMaster rateMaster =
+                rateMasterRepository.findById(
+                        request.getRateMasterId())
+                        .orElseThrow(() ->
+                                new RateMasterNotFoundException(
+                                        "Rate not found"));
+
+        BigDecimal ratePerKg =
+                rateMaster.getRatePerKg();
+
+        BigDecimal totalAmount =
+                ratePerKg.multiply(
+                        BigDecimal.valueOf(
+                                request.getWeightInKg()));
+
+        transaction.setCustomer(customer);
+        transaction.setRateMaster(rateMaster);
+        transaction.setWeightInKg(
+                request.getWeightInKg());
+        transaction.setRatePerKg(ratePerKg);
+        transaction.setTotalAmount(totalAmount);
+        transaction.setRemarks(
+                request.getRemarks());
+
+        GrindingTransaction updated =
+                transactionRepository.save(
+                        transaction);
+
+        return new ApiResponse<>(
+                true,
+                "Transaction updated successfully",
+                mapToResponse(updated));
+    }
+
+    @Override
+    public ApiResponse<String>
+    cancelTransaction(Long id) {
+
+        GrindingTransaction transaction =
+                transactionRepository.findById(id)
+                        .orElseThrow(() ->
+                                new TransactionNotFoundException(
+                                        "Transaction not found"));
+
+        transaction.setStatus(
+                TransactionStatus.CANCELLED);
+
+        transactionRepository.save(transaction);
+
+        return new ApiResponse<>(
+                true,
+                "Transaction cancelled successfully",
+                null);
+    }
+
+    private GrindingTransactionResponseDto
+    mapToResponse(
+            GrindingTransaction transaction) {
+
+        return GrindingTransactionResponseDto
+                .builder()
+                .id(transaction.getId())
+                .customerName(
+                        transaction.getCustomer()
+                                .getCustomerName())
+                .itemName(
+                        transaction.getRateMaster()
+                                .getItemName())
+                .weightInKg(
+                        transaction.getWeightInKg())
+                .ratePerKg(
+                        transaction.getRatePerKg())
+                .totalAmount(
+                        transaction.getTotalAmount())
+                .transactionDate(
+                        transaction.getTransactionDate())
+                .status(
+                        transaction.getStatus()
+                                .name())
+                .remarks(
+                        transaction.getRemarks())
+                .build();
+    }
+}

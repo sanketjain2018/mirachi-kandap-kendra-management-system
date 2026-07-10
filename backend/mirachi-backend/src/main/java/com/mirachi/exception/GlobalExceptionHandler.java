@@ -92,4 +92,18 @@ public class GlobalExceptionHandler {
 	                        errors));
 	    }
 	    
+	    @ExceptionHandler(BillNotFoundException.class)
+	    public ResponseEntity<ApiResponse<String>>
+	    handleBillNotFoundException(
+	            BillNotFoundException ex) {
+
+	        return ResponseEntity.status(
+	                HttpStatus.NOT_FOUND)
+	                .body(
+	                        new ApiResponse<>(
+	                                false,
+	                                ex.getMessage(),
+	                                null));
+	    }
+	    
 }

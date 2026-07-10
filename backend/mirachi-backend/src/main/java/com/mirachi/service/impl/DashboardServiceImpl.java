@@ -9,13 +9,18 @@ import java.util.Locale;
 import org.springframework.stereotype.Service;
 
 import com.mirachi.dto.DashboardSummaryDto;
+import com.mirachi.dto.GrindingTransactionResponseDto;
 import com.mirachi.dto.RevenueChartDto;
+import com.mirachi.dto.TopItemDto;
+import com.mirachi.mapper.GrindingTransactionMapper;
 import com.mirachi.repository.CustomerRepository;
 import com.mirachi.repository.GrindingTransactionRepository;
 import com.mirachi.repository.RateMasterRepository;
 import com.mirachi.service.DashboardService;
 
 import lombok.RequiredArgsConstructor;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +32,7 @@ public class DashboardServiceImpl
     private final CustomerRepository customerRepository;
 
     private final RateMasterRepository rateMasterRepository;
-
+    private final GrindingTransactionMapper transactionMapper;
     @Override
     public DashboardSummaryDto getDashboardSummary() {
 
@@ -82,4 +87,21 @@ public class DashboardServiceImpl
                                 .build())
                 .toList();
     }
+
+	@Override
+	public List<TopItemDto> getTopGrindingItems() {
+		return transactionRepository
+				.getTopGrindingItems();
+	}
+	
+	@Override
+	public List<GrindingTransactionResponseDto>
+	getRecentTransactions() {
+
+	    return transactionRepository
+	            .findTop5ByOrderByCreatedAtDesc()
+	            .stream()
+	            .map(transactionMapper::mapToResponse)
+	            .toList();
+	}
 }

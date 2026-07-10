@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mirachi.dto.ApiResponse;
 import com.mirachi.dto.DashboardSummaryDto;
+import com.mirachi.dto.GrindingTransactionResponseDto;
 import com.mirachi.dto.RevenueChartDto;
+import com.mirachi.dto.TopItemDto;
 import com.mirachi.service.DashboardService;
 
 import lombok.RequiredArgsConstructor;
@@ -42,5 +44,25 @@ public class DashboardController {
                 "Revenue chart fetched successfully",
                 dashboardService
                         .getRevenueChart(year));
+    }
+    
+    @GetMapping("/top-items")
+    public ApiResponse<List<TopItemDto>>
+    getTopGrindingItems() {
+
+        return new ApiResponse<>(
+                true,
+                "Top grinding items fetched successfully",
+                dashboardService.getTopGrindingItems());
+    }
+    
+    @GetMapping("/recent-transactions")
+    public ApiResponse<List<GrindingTransactionResponseDto>>
+    getRecentTransactions() {
+
+        return new ApiResponse<>(
+                true,
+                "Recent transactions fetched successfully",
+                dashboardService.getRecentTransactions());
     }
 }

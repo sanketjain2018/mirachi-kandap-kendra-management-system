@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.mirachi.dto.MonthlyRevenueDto;
+import com.mirachi.dto.TopItemDto;
 import com.mirachi.entity.GrindingTransaction;
 
 public interface GrindingTransactionRepository extends 
@@ -95,6 +96,24 @@ public interface GrindingTransactionRepository extends
 		       """)
 		List<MonthlyRevenueDto> getMonthlyRevenueTrend(
 		        @Param("year") int year);
+	
+	@Query("""
+		       SELECT new com.mirachi.dto.TopItemDto(
+		            rm.itemName,
+		            COUNT(gt),
+		            COALESCE(SUM(gt.totalAmount),0)
+		       )
+		       FROM GrindingTransaction gt
+		       JOIN gt.rateMaster rm
+		       WHERE gt.status='COMPLETED'
+		       GROUP BY rm.itemName
+		       ORDER BY COUNT(gt) DESC
+		       """)
+	List<TopItemDto> getTopGrindingItems();
+	
+	List<GrindingTransaction>
+	findTop5ByOrderByCreatedAtDesc();
+	
 	
 }
 

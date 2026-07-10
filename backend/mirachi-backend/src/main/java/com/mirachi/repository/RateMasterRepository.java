@@ -11,4 +11,7 @@ public interface RateMasterRepository extends JpaRepository<RateMaster, Long> {
 	Optional<RateMaster> findByItemNameIgnoreCase(String itemName);
 	
 	boolean existsByItemNameIgnoreCase(String itemName);
+	
+	// To Get Active Rates 
+	long countByActiveTrue();
 }

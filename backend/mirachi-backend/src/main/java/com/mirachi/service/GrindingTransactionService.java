@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 import com.mirachi.dto.ApiResponse;
+import com.mirachi.dto.DashboardSummaryDto;
 import com.mirachi.dto.GrindingTransactionRequestDto;
 import com.mirachi.dto.GrindingTransactionResponseDto;
 import com.mirachi.dto.RevenueResponseDto;
@@ -70,9 +71,10 @@ public interface GrindingTransactionService {
     		LocalDate fromDate,
     		LocalDate toDate);
     
+    // Dashboard 
+    DashboardSummaryDto getDashboardSummary();
     
-    
-    
+   
     
     
     

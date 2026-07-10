@@ -7,7 +7,9 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import com.mirachi.dto.MonthlyRevenueDto;
 import com.mirachi.entity.GrindingTransaction;
 
 public interface GrindingTransactionRepository extends 
@@ -66,6 +68,34 @@ public interface GrindingTransactionRepository extends
 		BigDecimal getRevenueBetweenDates(
 		        LocalDate fromDate,
 		        LocalDate toDate);	
+	
+	// Get Total Transactions
+	
+	@Query(
+			"""
+			SELECT COUNT(gt)
+			FROM GrindingTransaction gt
+			"""
+			)
+	Long getTotalTransactions();
+	
+	
+	//get Monthly Revenue Trend
+	
+	@Query("""
+		       SELECT new com.mirachi.dto.MonthlyRevenueDto(
+		           MONTH(gt.transactionDate),
+		           COALESCE(SUM(gt.totalAmount),0)
+		       )
+		       FROM GrindingTransaction gt
+		       WHERE YEAR(gt.transactionDate) = :year
+		       AND gt.status = 'COMPLETED'
+		       GROUP BY MONTH(gt.transactionDate)
+		       ORDER BY MONTH(gt.transactionDate)
+		       """)
+		List<MonthlyRevenueDto> getMonthlyRevenueTrend(
+		        @Param("year") int year);
+	
 }
 
 

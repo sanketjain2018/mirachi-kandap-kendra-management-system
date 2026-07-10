@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mirachi.dto.ApiResponse;
+import com.mirachi.dto.DashboardSummaryDto;
 import com.mirachi.dto.GrindingTransactionRequestDto;
 import com.mirachi.dto.GrindingTransactionResponseDto;
 import com.mirachi.dto.RevenueResponseDto;
@@ -133,5 +134,19 @@ public class GrindingTransactionController {
 		return new ApiResponse<>(true, "Revenue report fetched successfully",
 				transactionService.getRevenueBetweenDates(fromDate, toDate));
 	}
+	
+	
+	// Dashboard Info
+	@GetMapping("/dashboard/summary")
+	public ApiResponse<DashboardSummaryDto>
+	getDashboardSummary() {
+
+	    return new ApiResponse<>(
+	            true,
+	            "Dashboard summary fetched successfully",
+	            transactionService
+	                    .getDashboardSummary());
+	}
+	
 
 }

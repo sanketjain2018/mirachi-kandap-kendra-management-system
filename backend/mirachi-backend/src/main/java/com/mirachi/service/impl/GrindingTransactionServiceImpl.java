@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.mirachi.dto.ApiResponse;
+import com.mirachi.dto.DashboardSummaryDto;
 import com.mirachi.dto.GrindingTransactionRequestDto;
 import com.mirachi.dto.GrindingTransactionResponseDto;
 import com.mirachi.dto.RevenueResponseDto;
@@ -368,6 +369,41 @@ public class GrindingTransactionServiceImpl
 	            .reportType("Date Range Revenue")
 	            .revenue(revenue)
 	            .build();
+	}
+
+	// Dashboard All Details
+	
+	@Override
+	public DashboardSummaryDto getDashboardSummary() {
+		
+		 BigDecimal todayRevenue =
+		            transactionRepository
+		                    .getDailyRevenue(LocalDate.now());
+
+		    BigDecimal monthRevenue =
+		            transactionRepository
+		                    .getMonthlyRevenue(
+		                            LocalDate.now().getYear(),
+		                            LocalDate.now().getMonthValue());
+
+		    BigDecimal yearRevenue =
+		            transactionRepository
+		                    .getYearlyRevenue(
+		                            LocalDate.now().getYear());
+
+		    return DashboardSummaryDto.builder()
+		            .todayRevenue(todayRevenue)
+		            .monthRevenue(monthRevenue)
+		            .yearRevenue(yearRevenue)
+		            .totalCustomers(
+		                    customerRepository.count())
+		            .totalTransactions(
+		                    transactionRepository.count())
+		            .activeRates(
+		                    rateMasterRepository
+		                            .countByActiveTrue())
+		            .build();
+		
 	}
     
     

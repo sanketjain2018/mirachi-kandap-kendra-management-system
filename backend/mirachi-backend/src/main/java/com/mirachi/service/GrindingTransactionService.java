@@ -9,7 +9,6 @@ import com.mirachi.dto.ApiResponse;
 import com.mirachi.dto.GrindingTransactionRequestDto;
 import com.mirachi.dto.GrindingTransactionResponseDto;
 import com.mirachi.dto.RevenueResponseDto;
-import com.mirachi.entity.GrindingTransaction;
 
 public interface GrindingTransactionService {
 

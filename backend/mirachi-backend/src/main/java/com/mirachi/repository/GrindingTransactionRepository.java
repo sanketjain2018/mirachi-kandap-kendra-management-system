@@ -1,11 +1,10 @@
 package com.mirachi.repository;
 
-import java.awt.print.Pageable;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -23,8 +22,7 @@ public interface GrindingTransactionRepository extends
 	List<GrindingTransaction> 
 			findByTransactionDate(LocalDate date);
 	
-	// Pagination
-	Page<GrindingTransaction> finaAll(Pageable pageable);
+	
 	
 	// Daily Revenue
 	@Query("""
@@ -58,9 +56,16 @@ public interface GrindingTransactionRepository extends
 	BigDecimal getYearlyRevenue(int year);
 	
 	// Date Range Revenue
-	BigDecimal getRevenueBetweenDates(LocalDate fromDate,
-										LocalDate toDate);
 	
+	@Query("""
+		       SELECT COALESCE(SUM(gt.totalAmount),0)
+		       FROM GrindingTransaction gt
+		       WHERE gt.transactionDate BETWEEN :fromDate AND :toDate
+		       AND gt.status = 'COMPLETED'
+		       """)
+		BigDecimal getRevenueBetweenDates(
+		        LocalDate fromDate,
+		        LocalDate toDate);	
 }
 
 

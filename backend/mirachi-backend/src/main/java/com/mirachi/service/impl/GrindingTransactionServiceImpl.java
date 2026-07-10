@@ -4,11 +4,16 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.mirachi.dto.ApiResponse;
 import com.mirachi.dto.GrindingTransactionRequestDto;
 import com.mirachi.dto.GrindingTransactionResponseDto;
+import com.mirachi.dto.RevenueResponseDto;
 import com.mirachi.entity.Customer;
 import com.mirachi.entity.GrindingTransaction;
 import com.mirachi.entity.RateMaster;
@@ -281,6 +286,110 @@ public class GrindingTransactionServiceImpl
                 "Transactions fetched successfully",
                 transactions);
     }
+    
+    
+    // Get Transactions With Pagination
+	@Override
+	public Page getTransactionsWithPagination(int page, int size, String sortBy) {
+		
+		Pageable pageable =
+	            PageRequest.of(
+	                    page,
+	                    size,
+	                    Sort.by(sortBy).descending());
+
+	    return transactionRepository
+	            .findAll(pageable)
+	            .map(this::mapToResponse);
+		
+	}
+
+	@Override
+	public RevenueResponseDto getDailyRevenue() {
+
+	    BigDecimal revenue =
+	            transactionRepository
+	                    .getDailyRevenue(LocalDate.now());
+
+	    return RevenueResponseDto.builder()
+	            .reportType("Daily Revenue")
+	            .revenue(revenue)
+	            .build();
+	}
+
+	@Override
+	public RevenueResponseDto
+	getMonthlyRevenue(
+	        int year,
+	        int month) {
+
+	    BigDecimal revenue =
+	            transactionRepository
+	                    .getMonthlyRevenue(year, month);
+
+	    return RevenueResponseDto.builder()
+	            .reportType("Monthly Revenue")
+	            .revenue(revenue)
+	            .build();
+	}
+
+	@Override
+	public RevenueResponseDto
+	getYearlyRevenue(
+	        int year) {
+
+	    BigDecimal revenue =
+	            transactionRepository
+	                    .getYearlyRevenue(year);
+
+	    return RevenueResponseDto.builder()
+	            .reportType("Yearly Revenue")
+	            .revenue(revenue)
+	            .build();
+	}
+
+	
+
+	// Get Revenue Between Dates
+    
+	@Override
+	public RevenueResponseDto
+	getRevenueBetweenDates(
+	        LocalDate fromDate,
+	        LocalDate toDate) {
+
+	    BigDecimal revenue =
+	            transactionRepository
+	                    .getRevenueBetweenDates(
+	                            fromDate,
+	                            toDate);
+
+	    return RevenueResponseDto.builder()
+	            .reportType("Date Range Revenue")
+	            .revenue(revenue)
+	            .build();
+	}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
 }

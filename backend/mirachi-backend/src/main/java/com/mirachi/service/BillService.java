@@ -33,4 +33,8 @@ public interface BillService {
     searchBillsByDateRange(
             LocalDate startDate,
             LocalDate endDate);
+    
+    List<BillResponseDto>
+    getCustomerBillHistory(
+            Long customerId);
 }

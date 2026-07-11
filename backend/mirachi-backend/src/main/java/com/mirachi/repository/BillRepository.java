@@ -37,4 +37,7 @@ public interface BillRepository
     		List<Bill> searchByCustomerName(
     		        @Param("customerName")
     		        String customerName);
+    
+    List<Bill> findByCustomerId(
+            Long customerId);
 }

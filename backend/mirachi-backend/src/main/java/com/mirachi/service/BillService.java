@@ -37,4 +37,7 @@ public interface BillService {
     List<BillResponseDto>
     getCustomerBillHistory(
             Long customerId);
+    
+    byte[] downloadBillPdf(
+            Long billId);
 }

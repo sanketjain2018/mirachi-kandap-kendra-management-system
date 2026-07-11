@@ -20,6 +20,10 @@ import com.mirachi.service.BillService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
 @RestController
 @RequestMapping("/api/bills")
 @RequiredArgsConstructor
@@ -135,7 +139,26 @@ public class BillController {
 	    }
 	    
 	    
-	    
+	    @GetMapping("/{id}/pdf")
+	    public ResponseEntity<byte[]>
+	    downloadBillPdf(
+	            @PathVariable Long id) {
+
+	        byte[] pdf =
+	                billService
+	                        .downloadBillPdf(id);
+
+	        return ResponseEntity.ok()
+
+	                .header(
+	                        HttpHeaders.CONTENT_DISPOSITION,
+	                        "attachment; filename=bill-" + id + ".pdf")
+
+	                .contentType(
+	                        MediaType.APPLICATION_PDF)
+
+	                .body(pdf);
+	    }
 	    
 	    
 }

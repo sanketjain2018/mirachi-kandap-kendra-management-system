@@ -16,6 +16,7 @@ import com.mirachi.enums.PaymentStatus;
 import com.mirachi.exception.BillNotFoundException;
 import com.mirachi.exception.CustomerNotFoundException;
 import com.mirachi.mapper.BillMapper;
+import com.mirachi.pdf.BillPdfGenerator;
 import com.mirachi.repository.BillRepository;
 import com.mirachi.repository.CustomerRepository;
 import com.mirachi.service.BillService;
@@ -36,6 +37,7 @@ public class BillServiceImpl
 
     private final BillNumberGenerator
             billNumberGenerator;
+    private final BillPdfGenerator billPdfGenerator;
 
     @Override
     public BillResponseDto createBill(
@@ -229,5 +231,33 @@ public class BillServiceImpl
 	            .map(
 	                    billMapper::mapToResponse)
 	            .toList();
+	}
+
+
+	@Override
+	public byte[] downloadBillPdf(
+	        Long billId) {
+
+	    Bill bill =
+	            billRepository.findById(
+	                    billId)
+	                    .orElseThrow(
+	                            () ->
+	                                    new BillNotFoundException(
+	                                            "Bill not found"));
+
+	    try {
+
+	        return billPdfGenerator
+	                .generateBillPdf(
+	                        bill)
+	                .readAllBytes();
+
+	    } catch (Exception e) {
+
+	        throw new RuntimeException(
+	                "Unable to generate PDF",
+	                e);
+	    }
 	}
 }

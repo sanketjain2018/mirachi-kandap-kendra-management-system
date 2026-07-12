@@ -106,4 +106,47 @@ public class GlobalExceptionHandler {
 	                                null));
 	    }
 	    
+	    
+	    @ExceptionHandler(
+	            ExpenseNotFoundException.class)
+	    public ResponseEntity<ApiResponse<?>>
+	    handleExpenseNotFoundException(
+	            ExpenseNotFoundException ex) {
+
+	        return ResponseEntity.status(
+	                HttpStatus.NOT_FOUND)
+	                .body(
+	                        new ApiResponse<>(
+	                                false,
+	                                ex.getMessage(),
+	                                null));
+	    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

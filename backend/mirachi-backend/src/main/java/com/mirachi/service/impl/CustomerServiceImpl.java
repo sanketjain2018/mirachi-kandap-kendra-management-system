@@ -1,16 +1,12 @@
 package com.mirachi.service.impl;
 
+
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-
-
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
-
+import org.springframework.stereotype.Service;
 
 import com.mirachi.dto.ApiResponse;
 import com.mirachi.dto.CustomerRequestDto;

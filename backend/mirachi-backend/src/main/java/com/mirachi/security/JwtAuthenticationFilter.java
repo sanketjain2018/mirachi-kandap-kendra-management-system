@@ -53,25 +53,33 @@ public class JwtAuthenticationFilter
             return;
         }
 
+        
         String email =
                 jwtUtil.extractUsername(token);
 
-        UserDetails userDetails =
-                userDetailsService
-                        .loadUserByUsername(email);
+        if (email != null &&
+            SecurityContextHolder
+                    .getContext()
+                    .getAuthentication() == null) {
 
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
+            UserDetails userDetails =
+                    userDetailsService
+                            .loadUserByUsername(email);
 
-        authToken.setDetails(
-                new WebAuthenticationDetailsSource()
-                        .buildDetails(request));
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
 
-        SecurityContextHolder.getContext()
-                .setAuthentication(authToken);
+            authToken.setDetails(
+                    new WebAuthenticationDetailsSource()
+                            .buildDetails(request));
+
+            SecurityContextHolder
+                    .getContext()
+                    .setAuthentication(authToken);
+        }
 
         filterChain.doFilter(request, response);
     }

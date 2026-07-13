@@ -44,7 +44,7 @@ public class AuthController {
 	public String token() {
 
 	    return jwtUtil.generateToken(
-	            "sanket@gmail.com");
+	            "sanket@gmail.com",  "SUPER_ADMIN");
 	}
 	
 	@GetMapping("/hello")

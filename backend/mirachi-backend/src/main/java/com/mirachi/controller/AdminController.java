@@ -21,4 +21,6 @@ public class AdminController {
 	public String profile() {
 		return "Admin Profile";
 	}
+	
+	
 }

@@ -121,6 +121,18 @@ public class GlobalExceptionHandler {
 	                                ex.getMessage(),
 	                                null));
 	    }
+	    
+	    public ResponseEntity<ApiResponse<?>>
+	    handleAdminNotFoundException(
+		    AdminNotFoundException ex){
+		return ResponseEntity.status(
+			HttpStatus.NOT_FOUND)
+			.body(
+				new ApiResponse<>(
+					false,
+					ex.getMessage(),
+					null));
+	    }
 }
 
 

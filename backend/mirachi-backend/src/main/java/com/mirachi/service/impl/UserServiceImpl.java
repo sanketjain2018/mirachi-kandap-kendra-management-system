@@ -37,9 +37,25 @@ public class UserServiceImpl implements UserService {
 	public ApiResponse<LoginResponseDto> loginUser(
 	        LoginRequestDto request) {
 
-	    User user = userRepository.findByEmail(request.getEmail())
+	    User user = userRepository
+	            .findByEmail(request.getEmail())
 	            .orElseThrow(() ->
-	                    new UserNotFoundException("User Not Found"));
+	                    new UserNotFoundException(
+	                            "User Not Found"));
+
+	    // Account Disabled
+	    if (!user.getEnabled()) {
+
+	        throw new InvalidCredentialsException(
+	                "Account is disabled. Contact Super Admin.");
+	    }
+
+	    // Account Locked
+	    if (user.getAccountLocked()) {
+
+	        throw new InvalidCredentialsException(
+	                "Account is locked. Contact Super Admin.");
+	    }
 
 	    boolean isPasswordValid =
 	            passwordEncoder.matches(
@@ -47,11 +63,37 @@ public class UserServiceImpl implements UserService {
 	                    user.getPassword());
 
 	    if (!isPasswordValid) {
+
+	        Integer attempts =
+	                user.getFailedAttempts() + 1;
+
+	        user.setFailedAttempts(attempts);
+
+	        // Lock after 5 attempts
+	        if (attempts >= 5) {
+
+	            user.setAccountLocked(true);
+	        }
+
+	        userRepository.save(user);
+
 	        throw new InvalidCredentialsException(
 	                "Invalid Credentials");
 	    }
 
-	    String token = jwtUtil.generateToken(user.getEmail());
+	    // Successful Login
+
+	    user.setFailedAttempts(0);
+
+	    user.setLastLoginAt(
+	            java.time.LocalDateTime.now());
+
+	    userRepository.save(user);
+
+	    String token =
+		        jwtUtil.generateToken(
+		                user.getEmail(),
+		                user.getRole().name());
 
 	    LoginResponseDto loginData =
 	            new LoginResponseDto(token);

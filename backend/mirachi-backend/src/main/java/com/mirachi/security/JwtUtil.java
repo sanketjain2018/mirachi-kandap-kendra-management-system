@@ -21,57 +21,107 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
+    /**
+     * Creates signing key using secret from application.properties
+     */
     private SecretKey getSigningKey() {
 
         return Keys.hmacShaKeyFor(
                 secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String email) {
+    /**
+     * Generate JWT Token
+     */
+    public String generateToken(
+            String email,
+            String role) {
 
         return Jwts.builder()
+
+                // User Email
                 .subject(email)
+
+                // Custom Claim
+                .claim("role", role)
+
+                // Token Creation Time
                 .issuedAt(new Date())
+
+                // Token Expiry Time
                 .expiration(
                         new Date(
                                 System.currentTimeMillis()
                                         + expiration))
+
+                // Signature
                 .signWith(getSigningKey())
+
                 .compact();
     }
 
-    public String extractUsername(String token) {
+    /**
+     * Extract Email From Token
+     */
+    public String extractUsername(
+            String token) {
 
-        Claims claims = Jwts.parser()
+        return extractAllClaims(token)
+                .getSubject();
+    }
+
+    /**
+     * Extract Role From Token
+     */
+    public String extractRole(
+            String token) {
+
+        return extractAllClaims(token)
+                .get("role", String.class);
+    }
+
+    /**
+     * Extract Expiration Date
+     */
+    public Date extractExpiration(
+            String token) {
+
+        return extractAllClaims(token)
+                .getExpiration();
+    }
+
+    /**
+     * Common Claims Extraction Method
+     */
+    private Claims extractAllClaims(
+            String token) {
+
+        return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
-        return claims.getSubject();
     }
 
-    public Date extractExpiration(String token) {
+    /**
+     * Check Token Expiry
+     */
+    public boolean isTokenExpired(
+            String token) {
 
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
-        return claims.getExpiration();
+        return extractExpiration(token)
+                .before(new Date());
     }
 
-    public boolean validateToken(String token) {
+    /**
+     * Validate Token
+     */
+    public boolean validateToken(
+            String token) {
 
         try {
 
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
-
-            return true;
+            return !isTokenExpired(token);
 
         } catch (Exception e) {
 

@@ -1,6 +1,5 @@
 package com.mirachi.controller;
 
-import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,8 +8,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mirachi.dto.AdminPageResponseDto;
 import com.mirachi.dto.AdminResponseDto;
 import com.mirachi.dto.ApiResponse;
 import com.mirachi.dto.CreateAdminRequestDto;
@@ -38,15 +39,30 @@ public class SuperAdminController {
     }
 
     @GetMapping("/admins")
-    public ApiResponse<List<AdminResponseDto>>
-    getAllAdmins() {
+    public ApiResponse<AdminPageResponseDto>
+    getAdmins(
+            @RequestParam(defaultValue = "0")
+            int page,
+
+            @RequestParam(defaultValue = "10")
+            int size,
+
+            @RequestParam(defaultValue = "id")
+            String sortBy,
+
+            @RequestParam(defaultValue = "asc")
+            String direction) {
 
         return new ApiResponse<>(
                 true,
                 "Admins fetched successfully",
-                service.getAllAdmins());
+                service.getAdmins(
+                        page,
+                        size,
+                        sortBy,
+                        direction));
     }
-
+   
     @PutMapping("/admins/{id}/enable")
     public ApiResponse<String>
     enableAdmin(

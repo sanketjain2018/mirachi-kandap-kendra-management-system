@@ -1,10 +1,14 @@
 package com.mirachi.service.impl;
 
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.mirachi.dto.AdminPageResponseDto;
 import com.mirachi.dto.AdminResponseDto;
 import com.mirachi.dto.CreateAdminRequestDto;
 import com.mirachi.entity.User;
@@ -17,7 +21,8 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class SuperAdminServiceImpl implements SuperAdminService {
+public class SuperAdminServiceImpl
+        implements SuperAdminService {
 
     private final UserRepository userRepository;
 
@@ -52,16 +57,7 @@ public class SuperAdminServiceImpl implements SuperAdminService {
         return mapToResponse(saved);
     }
 
-    @Override
-    public List<AdminResponseDto>
-    getAllAdmins() {
-
-        return userRepository
-                .findByRole(Role.ADMIN)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
+ 
 
     @Override
     public void enableAdmin(Long id) {
@@ -103,8 +99,104 @@ public class SuperAdminServiceImpl implements SuperAdminService {
         userRepository.delete(admin);
     }
 
-    private AdminResponseDto
-    mapToResponse(User user) {
+    @Override
+    public void unlockAdmin(Long id) {
+
+        User admin = userRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new AdminNotFoundException(
+                                "Admin not found"));
+
+        admin.setAccountLocked(false);
+        admin.setFailedAttempts(0);
+
+        userRepository.save(admin);
+    }
+
+    @Override
+    public AdminPageResponseDto getAdmins(
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
+
+        Sort sort =
+                direction.equalsIgnoreCase("desc")
+                        ? Sort.by(sortBy).descending()
+                        : Sort.by(sortBy).ascending();
+
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        size,
+                        sort);
+
+        Page<User> adminPage =
+                userRepository.findByRole(
+                        Role.ADMIN,
+                        pageable);
+
+        return buildAdminPageResponse(
+                adminPage);
+    }
+
+    @Override
+    public AdminPageResponseDto searchAdmins(
+            String keyword,
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
+
+        Sort sort =
+                direction.equalsIgnoreCase("desc")
+                        ? Sort.by(sortBy).descending()
+                        : Sort.by(sortBy).ascending();
+
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        size,
+                        sort);
+
+        Page<User> adminPage =
+                userRepository
+                        .findByRoleAndFullNameContainingIgnoreCaseOrRoleAndEmailContainingIgnoreCase(
+                                Role.ADMIN,
+                                keyword,
+                                Role.ADMIN,
+                                keyword,
+                                pageable);
+
+        return buildAdminPageResponse(
+                adminPage);
+    }
+
+    private AdminPageResponseDto buildAdminPageResponse(
+            Page<User> adminPage) {
+
+        return AdminPageResponseDto.builder()
+                .admins(
+                        adminPage.getContent()
+                                .stream()
+                                .map(this::mapToResponse)
+                                .toList())
+                .currentPage(
+                        adminPage.getNumber())
+                .totalPages(
+                        adminPage.getTotalPages())
+                .totalElements(
+                        adminPage.getTotalElements())
+                .hasNext(
+                        adminPage.hasNext())
+                .hasPrevious(
+                        adminPage.hasPrevious())
+                .build();
+    }
+
+    private AdminResponseDto mapToResponse(
+            User user) {
 
         return AdminResponseDto.builder()
                 .id(user.getId())
@@ -118,21 +210,4 @@ public class SuperAdminServiceImpl implements SuperAdminService {
                         user.getLastLoginAt())
                 .build();
     }
-    
-    @Override
-    public void unlockAdmin(Long id) {
-
-        User admin =
-                userRepository.findById(id)
-                        .orElseThrow(() ->
-                                new AdminNotFoundException(
-                                        "Admin not found"));
-
-        admin.setAccountLocked(false);
-
-        admin.setFailedAttempts(0);
-
-        userRepository.save(admin);
-    }
-    
 }

@@ -1,0 +1,19 @@
+package com.mirachi.dto;
+
+import java.math.BigDecimal;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProfitSummaryDto {
+
+    private BigDecimal totalRevenue;
+    private BigDecimal totalExpense;
+    private BigDecimal totalProfit;
+}

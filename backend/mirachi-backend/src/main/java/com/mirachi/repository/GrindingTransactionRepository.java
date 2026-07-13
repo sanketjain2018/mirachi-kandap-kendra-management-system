@@ -114,7 +114,11 @@ public interface GrindingTransactionRepository extends
 	List<GrindingTransaction>
 	findTop5ByOrderByCreatedAtDesc();
 	
-	
+	@Query("""
+		       SELECT COALESCE(SUM(g.totalAmount),0)
+		       FROM GrindingTransaction g
+		       """)
+		BigDecimal getTotalRevenue();
 }
 
 

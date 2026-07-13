@@ -2,6 +2,11 @@ package com.mirachi.controller;
 
 import java.util.List;
 
+
+
+import com.mirachi.dto.ProfitTrendDto;
+import com.mirachi.dto.RevenueExpenseDto;
+import com.mirachi.dto.TopExpenseDto;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,4 +70,35 @@ public class DashboardController {
                 "Recent transactions fetched successfully",
                 dashboardService.getRecentTransactions());
     }
+    
+    @GetMapping("/revenue-vs-expense")
+    public ApiResponse<RevenueExpenseDto>
+    getRevenueVsExpense() {
+
+        return new ApiResponse<>(
+                true,
+                "Revenue vs Expense fetched successfully",
+                dashboardService.getRevenueVsExpense());
+    }
+    
+    @GetMapping("/top-expenses")
+    public ApiResponse<List<TopExpenseDto>>
+    getTopExpenseCategories() {
+
+        return new ApiResponse<>(
+                true,
+                "Top expense categories fetched successfully",
+                dashboardService.getTopExpenseCategories());
+    }
+    
+    @GetMapping("/profit-trend")
+    public ApiResponse<List<ProfitTrendDto>>
+    getProfitTrend() {
+
+        return new ApiResponse<>(
+                true,
+                "Profit trend fetched successfully",
+                dashboardService.getProfitTrend());
+    }
+    
 }

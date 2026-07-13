@@ -13,45 +13,39 @@ import com.mirachi.entity.Expense;
 
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
-	
-    List<Expense> findByExpenseTypeContainingIgnoreCase(
-	        String expenseType);
-    
-    List<Expense> findByExpenseDateBetween(
-	        LocalDate startDate,
-	        LocalDate endDate);
-    
+
+    List<Expense> findByExpenseTypeContainingIgnoreCase(String expenseType);
+
+    List<Expense> findByExpenseDateBetween(LocalDate startDate, LocalDate endDate);
+
     @Query("""
-	       SELECT COALESCE(SUM(e.amount),0)
-	       FROM Expense e
-	       """)
-	BigDecimal getTotalExpenses();
-    
+    	SELECT COALESCE(SUM(e.amount),0)
+    	FROM Expense e
+    	""")
+    BigDecimal getTotalExpenses();
+
     @Query("""
-	       SELECT COALESCE(SUM(e.amount),0)
-	       FROM Expense e
-	       WHERE YEAR(e.expenseDate)=:year
-	       AND MONTH(e.expenseDate)=:month
-	       """)
-	BigDecimal getMonthlyExpense(
-	        @Param("year") int year,
-	        @Param("month") int month);
-    
+    	SELECT COALESCE(SUM(e.amount),0)
+    	FROM Expense e
+    	WHERE YEAR(e.expenseDate)=:year
+    	AND MONTH(e.expenseDate)=:month
+    	""")
+    BigDecimal getMonthlyExpense(@Param("year") int year, @Param("month") int month);
+
     @Query("""
-	       SELECT COALESCE(SUM(e.amount),0)
-	       FROM Expense e
-	       WHERE e.expenseDate BETWEEN :startDate AND :endDate
-	       """)
-	BigDecimal getExpenseBetweenDates(
-	        @Param("startDate") LocalDate startDate,
-	        @Param("endDate") LocalDate endDate);
-    
+    	SELECT COALESCE(SUM(e.amount),0)
+    	FROM Expense e
+    	WHERE e.expenseDate BETWEEN :startDate AND :endDate
+    	""")
+    BigDecimal getExpenseBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
     @Query("""
-	       SELECT e.expenseType,
-	              SUM(e.amount)
-	       FROM Expense e
-	       GROUP BY e.expenseType
-	       ORDER BY SUM(e.amount) DESC
-	       """)
-	List<Object[]> getTopExpenseCategories();
+    	SELECT e.expenseType,
+    	       SUM(e.amount)
+    	FROM Expense e
+    	GROUP BY e.expenseType
+    	ORDER BY SUM(e.amount) DESC
+    	""")
+    List<Object[]> getTopExpenseCategories();
+
 }

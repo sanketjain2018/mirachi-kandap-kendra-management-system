@@ -1,5 +1,6 @@
 package com.mirachi.service.impl;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
@@ -10,10 +11,15 @@ import org.springframework.stereotype.Service;
 
 import com.mirachi.dto.DashboardSummaryDto;
 import com.mirachi.dto.GrindingTransactionResponseDto;
+import com.mirachi.dto.ProfitTrendDto;
 import com.mirachi.dto.RevenueChartDto;
+import com.mirachi.dto.RevenueExpenseDto;
+import com.mirachi.dto.TopExpenseDto;
 import com.mirachi.dto.TopItemDto;
 import com.mirachi.mapper.GrindingTransactionMapper;
+import com.mirachi.repository.BillRepository;
 import com.mirachi.repository.CustomerRepository;
+import com.mirachi.repository.ExpenseRepository;
 import com.mirachi.repository.GrindingTransactionRepository;
 import com.mirachi.repository.RateMasterRepository;
 import com.mirachi.service.DashboardService;
@@ -32,13 +38,30 @@ public class DashboardServiceImpl
     private final CustomerRepository customerRepository;
 
     private final RateMasterRepository rateMasterRepository;
+    
     private final GrindingTransactionMapper transactionMapper;
+    
+    private final BillRepository billRepository;
+
+    private final ExpenseRepository expenseRepository;
+    
+ 
     @Override
     public DashboardSummaryDto getDashboardSummary() {
 
         LocalDate today = LocalDate.now();
 
+        BigDecimal totalRevenue =
+                billRepository.getTotalRevenue();
+
+        BigDecimal totalExpenses =
+                expenseRepository.getTotalExpenses();
+
+        BigDecimal totalProfit =
+                totalRevenue.subtract(totalExpenses);
+
         return DashboardSummaryDto.builder()
+
                 .todayRevenue(
                         transactionRepository
                                 .getDailyRevenue(today))
@@ -63,6 +86,15 @@ public class DashboardServiceImpl
                 .activeRates(
                         rateMasterRepository
                                 .countByActiveTrue())
+
+                .totalBills(
+                        billRepository.getTotalBills())
+
+                .totalExpenses(
+                        totalExpenses)
+
+                .totalProfit(
+                        totalProfit)
 
                 .build();
     }
@@ -104,4 +136,85 @@ public class DashboardServiceImpl
 	            .map(transactionMapper::mapToResponse)
 	            .toList();
 	}
+	
+	@Override
+	public RevenueExpenseDto getRevenueVsExpense() {
+
+	    return RevenueExpenseDto.builder()
+	            .revenue(
+	                    billRepository.getTotalRevenue())
+	            .expense(
+	                    expenseRepository.getTotalExpenses())
+	            .build();
+	}
+	
+	
+	@Override
+	public List<TopExpenseDto>
+	getTopExpenseCategories() {
+
+	    return expenseRepository
+	            .getTopExpenseCategories()
+	            .stream()
+	            .map(data ->
+	                    TopExpenseDto.builder()
+	                            .expenseType(
+	                                    (String) data[0])
+	                            .totalAmount(
+	                                    (BigDecimal) data[1])
+	                            .build())
+	            .toList();
+	}
+	
+	@Override
+	public List<ProfitTrendDto>
+	getProfitTrend() {
+
+	    return List.of(
+
+	            ProfitTrendDto.builder()
+	                    .month("JAN")
+	                    .profit(
+	                            BigDecimal.valueOf(
+	                                    25000))
+	                    .build(),
+
+	            ProfitTrendDto.builder()
+	                    .month("FEB")
+	                    .profit(
+	                            BigDecimal.valueOf(
+	                                    30000))
+	                    .build(),
+
+	            ProfitTrendDto.builder()
+	                    .month("MAR")
+	                    .profit(
+	                            BigDecimal.valueOf(
+	                                    45000))
+	                    .build()
+	    );
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

@@ -30,7 +30,8 @@ public class Expense {
 	private Long id;
 	
 	@Column(nullable = false)
-	private String expeneseType;
+	private String expenseType;
+	
 	@Column(nullable = false, precision = 10 , scale = 2)
 	private BigDecimal amount;
 	private String description;

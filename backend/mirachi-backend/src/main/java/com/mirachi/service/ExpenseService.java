@@ -1,5 +1,6 @@
 package com.mirachi.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.mirachi.dto.ExpenseRequestDto;
@@ -20,4 +21,13 @@ public interface ExpenseService {
 	    Long id, ExpenseRequestDto request);
     
     void deleteExpense(Long id);
+    
+    List<ExpenseResponseDto>
+    searchByExpenseType(
+            String expenseType);
+
+    List<ExpenseResponseDto>
+    searchByDateRange(
+            LocalDate startDate,
+            LocalDate endDate);
 }

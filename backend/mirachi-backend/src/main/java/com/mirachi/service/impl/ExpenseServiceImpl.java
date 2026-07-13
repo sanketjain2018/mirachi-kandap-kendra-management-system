@@ -1,5 +1,6 @@
 package com.mirachi.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class ExpenseServiceImpl implements ExpenseService{
 	
 	Expense expense = 
 		Expense.builder()
-			.expeneseType(
+			.expenseType(
 				request.getExpenseType())
 			.amount(
 				request.getAmount())
@@ -82,7 +83,7 @@ public class ExpenseServiceImpl implements ExpenseService{
                                         new ExpenseNotFoundException(
                                                 "Expense not found"));
 
-        expense.setExpeneseType(
+        expense.setExpenseType(
                 request.getExpenseType());
 
         expense.setAmount(
@@ -117,5 +118,42 @@ public class ExpenseServiceImpl implements ExpenseService{
 
         expenseRepository.delete(
                 expense);
+    }
+    
+    @Override
+    public List<ExpenseResponseDto>
+    searchByExpenseType(
+            String expenseType) {
+
+        return expenseRepository
+                .findByExpenseTypeContainingIgnoreCase(
+                        expenseType)
+                .stream()
+                .map(
+                        expenseMapper::mapToResponse)
+                .toList();
+    }
+    
+    @Override
+    public List<ExpenseResponseDto>
+    searchByDateRange(
+            LocalDate startDate,
+            LocalDate endDate) {
+
+        if (startDate.isAfter(
+                endDate)) {
+
+            throw new IllegalArgumentException(
+                    "Start date cannot be after end date");
+        }
+
+        return expenseRepository
+                .findByExpenseDateBetween(
+                        startDate,
+                        endDate)
+                .stream()
+                .map(
+                        expenseMapper::mapToResponse)
+                .toList();
     }
 }

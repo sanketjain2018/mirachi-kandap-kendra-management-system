@@ -9,7 +9,7 @@ import com.mirachi.entity.Expense;
 public class ExpenseMapper {
 
 	public ExpenseResponseDto mapToResponse(Expense expense) {
-		return ExpenseResponseDto.builder().id(expense.getId()).expenseType(expense.getExpeneseType())
+		return ExpenseResponseDto.builder().id(expense.getId()).expenseType(expense.getExpenseType())
 				.amount(expense.getAmount()).description(expense.getDescription()).expenseDate(expense.getExpenseDate())
 				.build();
 	}

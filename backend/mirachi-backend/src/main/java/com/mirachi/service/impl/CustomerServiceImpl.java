@@ -1,6 +1,6 @@
 package com.mirachi.service.impl;
 
-
+import com.mirachi.util.SecurityUtil;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -12,9 +12,11 @@ import com.mirachi.dto.ApiResponse;
 import com.mirachi.dto.CustomerRequestDto;
 import com.mirachi.dto.CustomerResponseDto;
 import com.mirachi.entity.Customer;
+import com.mirachi.enums.AuditAction;
 import com.mirachi.exception.CustomerNotFoundException;
 import com.mirachi.exception.DuplicateCustomerException;
 import com.mirachi.repository.CustomerRepository;
+import com.mirachi.service.AuditLogService;
 import com.mirachi.service.CustomerService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomerServiceImpl implements CustomerService {
 
 	private final CustomerRepository customerRepository;
+	private final AuditLogService auditLogService;
 
 	@Override
 	public ApiResponse<CustomerResponseDto> createCustomer(CustomerRequestDto request) {
@@ -34,8 +37,16 @@ public class CustomerServiceImpl implements CustomerService {
 
 		Customer customer = Customer.builder().customerName(request.getCustomerName())
 				.mobileNumber(request.getMobileNumber()).address(request.getAddress()).build();
-
+		
 		Customer savedCustomer = customerRepository.save(customer);
+		
+		auditLogService.logAction(
+		        SecurityUtil.getCurrentUsername(),
+		        SecurityUtil.getCurrentRole(),
+		        AuditAction.CREATE,
+		        "Customer",
+		        "Created customer "
+		                + savedCustomer.getCustomerName());
 		
 		 CustomerResponseDto response =
 	                CustomerResponseDto.builder()
@@ -127,6 +138,14 @@ public class CustomerServiceImpl implements CustomerService {
 
 	    Customer updatedCustomer =
 	            customerRepository.save(customer);
+	    
+	    auditLogService.logAction(
+		        SecurityUtil.getCurrentUsername(),
+		        SecurityUtil.getCurrentRole(),
+		        AuditAction.UPDATE,
+		        "Customer",
+		        "Updated customer "
+		                + updatedCustomer.getCustomerName());
 
 	    CustomerResponseDto response =
 	            CustomerResponseDto.builder()
@@ -154,6 +173,14 @@ public class CustomerServiceImpl implements CustomerService {
 	                    .orElseThrow(() ->
 	                            new CustomerNotFoundException(
 	                                    "Customer Not Found"));
+	    
+	    auditLogService.logAction(
+		        SecurityUtil.getCurrentUsername(),
+		        SecurityUtil.getCurrentRole(),
+		        AuditAction.DELETE,
+		        "Customer",
+		        "Deleted customer "
+		                + customer.getCustomerName());
 
 	    customerRepository.delete(customer);
 

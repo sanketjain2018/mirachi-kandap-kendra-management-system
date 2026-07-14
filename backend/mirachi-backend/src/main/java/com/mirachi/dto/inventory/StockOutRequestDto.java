@@ -1,0 +1,18 @@
+package com.mirachi.dto.inventory;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+@Data
+public class StockOutRequestDto {
+
+    @NotNull(message = "Inventory Id is required")
+    private Long inventoryId;
+
+    @NotNull(message = "Quantity is required")
+    @Min(value = 1, message = "Quantity must be greater than zero")
+    private Double quantity;
+
+    private String remarks;
+}

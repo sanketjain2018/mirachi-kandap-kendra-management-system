@@ -1,5 +1,9 @@
 package com.mirachi.service.impl;
 
+import com.mirachi.enums.AuditAction;
+import com.mirachi.service.AuditLogService;
+import com.mirachi.util.SecurityUtil;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -38,6 +42,8 @@ public class BillServiceImpl
     private final BillNumberGenerator
             billNumberGenerator;
     private final BillPdfGenerator billPdfGenerator;
+    
+    private final AuditLogService auditLogService;
 
     @Override
     public BillResponseDto createBill(
@@ -91,6 +97,12 @@ public class BillServiceImpl
         Bill savedBill =
                 billRepository.save(
                         bill);
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.GENERATE_BILL,
+                "Billing",
+                "Generated bill " + savedBill.getBillNumber());
 
         return billMapper
                 .mapToResponse(

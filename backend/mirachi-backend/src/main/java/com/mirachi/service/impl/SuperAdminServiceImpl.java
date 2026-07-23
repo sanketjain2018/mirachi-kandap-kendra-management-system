@@ -1,4 +1,7 @@
 package com.mirachi.service.impl;
+import com.mirachi.enums.AuditAction;
+import com.mirachi.service.AuditLogService;
+import com.mirachi.util.SecurityUtil;
 
 
 import org.springframework.data.domain.Page;
@@ -27,6 +30,8 @@ public class SuperAdminServiceImpl
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+    
+    private final AuditLogService auditLogService;
 
     @Override
     public AdminResponseDto createAdmin(
@@ -53,6 +58,13 @@ public class SuperAdminServiceImpl
 
         User saved =
                 userRepository.save(admin);
+        
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.CREATE,
+                "Admin Management",
+                "Created admin " + saved.getEmail());
 
         return mapToResponse(saved);
     }
@@ -71,6 +83,13 @@ public class SuperAdminServiceImpl
         admin.setEnabled(true);
 
         userRepository.save(admin);
+        
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.ENABLE,
+                "Admin Management",
+                "Enabled admin " + admin.getEmail());
     }
 
     @Override
@@ -85,6 +104,13 @@ public class SuperAdminServiceImpl
         admin.setEnabled(false);
 
         userRepository.save(admin);
+        
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.DISABLE,
+                "Admin Management",
+                "Disabled admin " + admin.getEmail());
     }
 
     @Override
@@ -97,6 +123,13 @@ public class SuperAdminServiceImpl
                                 "Admin not found"));
 
         userRepository.delete(admin);
+        
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.DELETE,
+                "Admin Management",
+                "Deleted admin " + admin.getEmail());
     }
 
     @Override
@@ -112,6 +145,13 @@ public class SuperAdminServiceImpl
         admin.setFailedAttempts(0);
 
         userRepository.save(admin);
+        
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.UNLOCK,
+                "Admin Management",
+                "Unlocked admin " + admin.getEmail());
     }
 
     @Override

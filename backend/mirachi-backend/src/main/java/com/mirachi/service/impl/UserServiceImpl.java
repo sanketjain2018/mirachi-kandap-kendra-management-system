@@ -1,5 +1,8 @@
 package com.mirachi.service.impl;
 
+import com.mirachi.enums.AuditAction;
+import com.mirachi.service.AuditLogService;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,7 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final BCryptPasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
+	private final AuditLogService auditLogService;
 
 	@Override
 	public String registerUser(RegisterRequestDto request) {
@@ -89,6 +93,13 @@ public class UserServiceImpl implements UserService {
 	            java.time.LocalDateTime.now());
 
 	    userRepository.save(user);
+	    
+	    auditLogService.logAction(
+		        user.getEmail(),
+		        user.getRole().name(),
+		        AuditAction.LOGIN,
+		        "Authentication",
+		        "User logged in successfully");
 
 	    String token =
 		        jwtUtil.generateToken(

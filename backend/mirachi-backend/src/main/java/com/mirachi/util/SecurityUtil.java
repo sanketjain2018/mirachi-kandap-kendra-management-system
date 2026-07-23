@@ -1,6 +1,10 @@
+
 package com.mirachi.util;
 
+import java.util.Collection;
+
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public final class SecurityUtil {
@@ -15,7 +19,10 @@ public final class SecurityUtil {
                         .getContext()
                         .getAuthentication();
 
-        if (authentication == null) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+
             return "SYSTEM";
         }
 
@@ -30,15 +37,19 @@ public final class SecurityUtil {
                         .getAuthentication();
 
         if (authentication == null
-                || authentication.getAuthorities().isEmpty()) {
+                || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
 
             return "SYSTEM";
         }
 
-        return authentication
-                .getAuthorities()
-                .iterator()
-                .next()
-                .getAuthority();
+        Collection<? extends GrantedAuthority> authorities =
+                authentication.getAuthorities();
+
+        if (authorities == null || authorities.isEmpty()) {
+            return "SYSTEM";
+        }
+
+        return authorities.iterator().next().getAuthority();
     }
 }

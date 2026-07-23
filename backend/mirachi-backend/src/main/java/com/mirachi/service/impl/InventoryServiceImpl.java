@@ -7,9 +7,12 @@ import org.springframework.stereotype.Service;
 import com.mirachi.dto.InventoryRequestDto;
 import com.mirachi.dto.InventoryResponseDto;
 import com.mirachi.entity.Inventory;
+import com.mirachi.enums.AuditAction;
 import com.mirachi.mapper.InventoryMapper;
 import com.mirachi.repository.InventoryRepository;
+import com.mirachi.service.AuditLogService;
 import com.mirachi.service.InventoryService;
+import com.mirachi.util.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +24,8 @@ public class InventoryServiceImpl
     private final InventoryRepository inventoryRepository;
 
     private final InventoryMapper inventoryMapper;
+
+    private final AuditLogService auditLogService;
 
     @Override
     public InventoryResponseDto createInventory(
@@ -36,8 +41,18 @@ public class InventoryServiceImpl
         Inventory inventory =
                 inventoryMapper.toEntity(requestDto);
 
-        return inventoryMapper.toResponse(
-                inventoryRepository.save(inventory));
+        Inventory savedInventory =
+                inventoryRepository.save(inventory);
+
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.CREATE,
+                "Inventory",
+                "Created inventory item "
+                        + savedInventory.getItemName());
+
+        return inventoryMapper.toResponse(savedInventory);
     }
 
     @Override
@@ -51,15 +66,31 @@ public class InventoryServiceImpl
                                 new RuntimeException(
                                         "Inventory not found"));
 
-        inventory.setItemName(requestDto.getItemName());
+        inventory.setItemName(
+                requestDto.getItemName());
+
         inventory.setAvailableQuantity(
                 requestDto.getAvailableQuantity());
-        inventory.setUnit(requestDto.getUnit());
+
+        inventory.setUnit(
+                requestDto.getUnit());
+
         inventory.setMinimumStockLevel(
                 requestDto.getMinimumStockLevel());
 
+        Inventory updatedInventory =
+                inventoryRepository.save(inventory);
+
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.UPDATE,
+                "Inventory",
+                "Updated inventory item "
+                        + updatedInventory.getItemName());
+
         return inventoryMapper.toResponse(
-                inventoryRepository.save(inventory));
+                updatedInventory);
     }
 
     @Override
@@ -72,7 +103,8 @@ public class InventoryServiceImpl
                                 new RuntimeException(
                                         "Inventory not found"));
 
-        return inventoryMapper.toResponse(inventory);
+        return inventoryMapper.toResponse(
+                inventory);
     }
 
     @Override
@@ -89,17 +121,20 @@ public class InventoryServiceImpl
 
         return inventoryRepository.findAll()
                 .stream()
-                .filter(i -> i.getAvailableQuantity()
-                        <= i.getMinimumStockLevel())
+                .filter(inventory ->
+                        inventory.getAvailableQuantity()
+                                <= inventory.getMinimumStockLevel())
                 .map(inventoryMapper::toResponse)
                 .toList();
     }
 
     @Override
-    public void deleteInventory(Long inventoryId) {
+    public void deleteInventory(
+            Long inventoryId) {
 
         Inventory inventory =
-                inventoryRepository.findById(inventoryId)
+                inventoryRepository.findById(
+                        inventoryId)
                         .orElseThrow(() ->
                                 new RuntimeException(
                                         "Inventory not found"));
@@ -107,5 +142,13 @@ public class InventoryServiceImpl
         inventory.setActive(false);
 
         inventoryRepository.save(inventory);
+
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.DELETE,
+                "Inventory",
+                "Deleted inventory item "
+                        + inventory.getItemName());
     }
 }

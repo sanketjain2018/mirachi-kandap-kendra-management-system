@@ -9,11 +9,14 @@ import com.mirachi.dto.inventory.StockInRequestDto;
 import com.mirachi.dto.inventory.StockOutRequestDto;
 import com.mirachi.entity.Inventory;
 import com.mirachi.entity.InventoryTransaction;
+import com.mirachi.enums.AuditAction;
 import com.mirachi.enums.TransactionType;
 import com.mirachi.mapper.InventoryTransactionMapper;
 import com.mirachi.repository.InventoryRepository;
 import com.mirachi.repository.InventoryTransactionRepository;
+import com.mirachi.service.AuditLogService;
 import com.mirachi.service.InventoryTransactionService;
+import com.mirachi.util.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +32,8 @@ public class InventoryTransactionServiceImpl
 
     private final InventoryTransactionMapper
             inventoryTransactionMapper;
+
+    private final AuditLogService auditLogService;
 
     @Override
     public InventoryTransactionResponseDto stockIn(
@@ -56,9 +61,21 @@ public class InventoryTransactionServiceImpl
                         .remarks(requestDto.getRemarks())
                         .build();
 
-        return inventoryTransactionMapper.toResponse(
+        InventoryTransaction savedTransaction =
                 inventoryTransactionRepository.save(
-                        transaction));
+                        transaction);
+
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.STOCK_IN,
+                "Inventory",
+                requestDto.getQuantity()
+                        + " units added to inventory item "
+                        + inventory.getItemName());
+
+        return inventoryTransactionMapper.toResponse(
+                savedTransaction);
     }
 
     @Override
@@ -94,9 +111,21 @@ public class InventoryTransactionServiceImpl
                         .remarks(requestDto.getRemarks())
                         .build();
 
-        return inventoryTransactionMapper.toResponse(
+        InventoryTransaction savedTransaction =
                 inventoryTransactionRepository.save(
-                        transaction));
+                        transaction);
+
+        auditLogService.logAction(
+                SecurityUtil.getCurrentUsername(),
+                SecurityUtil.getCurrentRole(),
+                AuditAction.STOCK_OUT,
+                "Inventory",
+                requestDto.getQuantity()
+                        + " units removed from inventory item "
+                        + inventory.getItemName());
+
+        return inventoryTransactionMapper.toResponse(
+                savedTransaction);
     }
 
     @Override

@@ -1,4 +1,6 @@
 package com.mirachi.service.impl;
+import com.mirachi.exception.DuplicateInventoryException;
+import com.mirachi.exception.InventoryNotFoundException;
 
 import java.util.List;
 
@@ -34,8 +36,8 @@ public class InventoryServiceImpl
         if (inventoryRepository.existsByItemNameIgnoreCase(
                 requestDto.getItemName())) {
 
-            throw new RuntimeException(
-                    "Inventory item already exists");
+            throw new DuplicateInventoryException(
+        	        "Inventory item already exists");
         }
 
         Inventory inventory =
@@ -62,9 +64,9 @@ public class InventoryServiceImpl
 
         Inventory inventory =
                 inventoryRepository.findById(inventoryId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Inventory not found"));
+                .orElseThrow(() ->
+                new InventoryNotFoundException(
+                        "Inventory not found"));
 
         inventory.setItemName(
                 requestDto.getItemName());
@@ -135,9 +137,9 @@ public class InventoryServiceImpl
         Inventory inventory =
                 inventoryRepository.findById(
                         inventoryId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Inventory not found"));
+                .orElseThrow(() ->
+                new InventoryNotFoundException(
+                        "Inventory not found"));
 
         inventory.setActive(false);
 

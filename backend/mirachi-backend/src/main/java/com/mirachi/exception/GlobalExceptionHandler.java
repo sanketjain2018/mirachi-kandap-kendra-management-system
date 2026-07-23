@@ -133,6 +133,42 @@ public class GlobalExceptionHandler {
 					ex.getMessage(),
 					null));
 	    }
+	    
+	    @ExceptionHandler(InventoryNotFoundException.class)
+	    public ResponseEntity<ApiResponse<Object>>
+	    handleInventoryNotFound(
+	            InventoryNotFoundException ex) {
+
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(new ApiResponse<>(
+	                        false,
+	                        ex.getMessage(),
+	                        null));
+	    }
+	    
+	    @ExceptionHandler(DuplicateInventoryException.class)
+	    public ResponseEntity<ApiResponse<Object>>
+	    handleDuplicateInventory(
+	            DuplicateInventoryException ex) {
+
+	        return ResponseEntity.status(HttpStatus.CONFLICT)
+	                .body(new ApiResponse<>(
+	                        false,
+	                        ex.getMessage(),
+	                        null));
+	    }
+	    
+	    @ExceptionHandler(InsufficientStockException.class)
+	    public ResponseEntity<ApiResponse<Object>>
+	    handleInsufficientStock(
+	            InsufficientStockException ex) {
+
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                .body(new ApiResponse<>(
+	                        false,
+	                        ex.getMessage(),
+	                        null));
+	    }
 }
 
 

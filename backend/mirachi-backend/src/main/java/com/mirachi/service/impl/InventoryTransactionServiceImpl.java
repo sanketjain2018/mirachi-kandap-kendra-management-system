@@ -1,4 +1,6 @@
 package com.mirachi.service.impl;
+import com.mirachi.exception.InventoryNotFoundException;
+import com.mirachi.exception.InsufficientStockException;
 
 import java.util.List;
 
@@ -42,9 +44,9 @@ public class InventoryTransactionServiceImpl
         Inventory inventory =
                 inventoryRepository.findById(
                         requestDto.getInventoryId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Inventory not found"));
+                .orElseThrow(() ->
+                new InventoryNotFoundException(
+                        "Inventory not found"));
 
         inventory.setAvailableQuantity(
                 inventory.getAvailableQuantity()
@@ -85,15 +87,15 @@ public class InventoryTransactionServiceImpl
         Inventory inventory =
                 inventoryRepository.findById(
                         requestDto.getInventoryId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Inventory not found"));
+                .orElseThrow(() ->
+                new InventoryNotFoundException(
+                        "Inventory not found"));
 
         if (inventory.getAvailableQuantity()
                 < requestDto.getQuantity()) {
 
-            throw new RuntimeException(
-                    "Insufficient stock available");
+            throw new InsufficientStockException(
+        	        "Insufficient stock available");
         }
 
         inventory.setAvailableQuantity(
